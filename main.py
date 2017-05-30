@@ -20,7 +20,7 @@ def main():
         fetch('matches/', api_key)
 
     elif sys.argv[1] == 'compile':
-        compile_data('matches/', 'dota2matches.csv')
+        compile_data('matches/', 'train.csv', 'test.csv')
 
     elif sys.argv[1] == 'train':
         train('train.csv', 'test.csv')
