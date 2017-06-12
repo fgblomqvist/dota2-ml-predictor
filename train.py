@@ -1,20 +1,29 @@
+import pickle
+from sklearn import preprocessing
 from sklearn.linear_model import SGDClassifier
 import numpy as np
 
 
-def train(train_file, test_file):
+def train(train_file, test_file, output_file, iterations):
     x, y = load_data(train_file)
     x_test, y_test = load_data(test_file)
 
+    x = preprocessing.normalize(x)
+    x_test = preprocessing.normalize(x_test)
+    clf = None
+
     print('Iterations,Train,Test')
-    for it in [1, 5, 10, 20, 50, 100, 250, 500, 1000]:
-        clf = SGDClassifier(loss='log', penalty='l2', n_iter=it)
+    for it in iterations:
+        clf = SGDClassifier(loss='hinge', penalty='l2', n_iter=it, random_state=42)
         clf.fit(x, y)
 
         train_score = clf.score(x, y)
         test_score = clf.score(x_test, y_test)
 
         print('{},{},{}'.format(it, 1.0 - train_score, 1.0 - test_score))
+
+    with open(output_file, 'wb+') as f:
+        pickle.dump(clf, f)
 
 
 def load_data(data_file):

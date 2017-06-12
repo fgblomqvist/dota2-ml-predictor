@@ -1,7 +1,10 @@
 import os
 import sys
+
+from coefs import coefs
 from fetch import fetch
 from compile_data import compile_data
+from predict import predict
 from train import train
 
 steam_api = 'https://api.steampowered.com/IDOTA2Match_570'
@@ -23,7 +26,14 @@ def main():
         compile_data('matches/', 'train.csv', 'test.csv')
 
     elif sys.argv[1] == 'train':
-        train('train.csv', 'test.csv')
+        iterations = [int(x) for x in sys.argv[2].split(',')]
+        train('train.csv', 'test.csv', 'ml.model', iterations)
+
+    elif sys.argv[1] == 'predict':
+        predict(sys.argv[2])
+
+    elif sys.argv[1] == 'coefs':
+        coefs(sys.argv[2])
 
 
 main()
