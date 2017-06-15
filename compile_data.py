@@ -76,11 +76,13 @@ cluster_map = {
 
 # column names of the data output
 data_format = [
-    'winning_team', 'game_duration',
-    'region_us', 'region_eu', 'region_ru', 'region_au', 'region_as', 'region_sa', 'region_za',
-    'rad_str', 'rad_agi', 'rad_int',
-    'dir_str', 'dir_agi', 'dir_int',
-] + [('hero_' + str(i)) for i in range(1, 115)]
+                  'winning_team', 'game_duration',
+                  'region_us', 'region_eu', 'region_ru', 'region_au', 'region_as', 'region_sa', 'region_za',
+                  'rad_str', 'rad_agi', 'rad_int',
+                  'dir_str', 'dir_agi', 'dir_int',
+              ] + \
+              [('hero_' + str(i)) for i in range(1, 115)] + \
+              ['rad_win_prob', 'dir_win_prob']
 
 
 def compile_data(directory, train_output, test_output):
@@ -119,6 +121,9 @@ def compile_data(directory, train_output, test_output):
     samples = np.array(samples, dtype=float)
 
     train, test = train_test_split(samples, test_size=10000, random_state=42)
+
+    train = infuse_win_probability(train, 'data/heroes.json')
+    test = infuse_win_probability(test, 'data/heroes.json')
 
     write_data(train, train_output)
     write_data(test, test_output)
@@ -197,3 +202,28 @@ def get_hero_type(hero_id):
         return 1
     elif hero_id in intelligence:
         return 2
+
+
+def infuse_win_probability(x, hero_data):
+    x = np.c_[x, np.zeros(x.shape[0]), np.zeros(x.shape[0])]
+
+    with open(hero_data) as f:
+        heroes = json.load(f)
+
+    for i, entry in enumerate(x):
+        dire_sum = 0
+        rad_sum = 0
+
+        for idx, pick in enumerate(entry[15:]):
+            if pick == -1:
+                dire_sum += heroes[str(idx + 1)]['winrate']
+            elif pick == 1:
+                rad_sum += heroes[str(idx + 1)]['winrate']
+
+        dire_avg = dire_sum / 5
+        rad_avg = rad_sum / 5
+
+        x[i][-1] = dire_avg
+        x[i][-2] = rad_avg
+
+    return x

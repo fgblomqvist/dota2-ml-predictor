@@ -1,5 +1,6 @@
 matches/
 ml.model
+data/
 *.csv
 
 # Created by .ignore support plugin (hsz.mobi)

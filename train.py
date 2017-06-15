@@ -38,6 +38,9 @@ def load_data(data_file):
             line = line.split(",")
             line = [float(i) for i in line]
 
+            del line[-1]
+            del line[-2]
+
             y.append(line[0])
             x.append(line[1:])
 
